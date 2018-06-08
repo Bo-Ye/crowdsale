@@ -1,7 +1,7 @@
 pragma solidity ^0.4.16;
 
 interface token {
-    function transfer (address receiver, uint amount) public;
+    function transfer (address receiver, uint amount) external;
 }
 
 contract Crowdsale {
@@ -79,23 +79,15 @@ contract Crowdsale {
     function safeWithdrawal() afterDeadline public {
         if (!fundingGoalReached) {
             uint amount = balanceOf[msg.sender];
-            balanceOf[msg.sender] = 0;
-            if (amount > 0) {
-                if (msg.sender.transfer(amount)) {
-                    emit FundTransfer(msg.sender, amount, false);
-                } else {
-                    balanceOf[msg.sender] = amount;
-                }
-            }
+            //balanceOf[msg.sender] = 0;
+            //if (amount > 0) {
+            msg.sender.transfer(amount);
+            emit FundTransfer(msg.sender, amount, false);
         }
 
         if (fundingGoalReached && beneficiary == msg.sender) {
-            if (beneficiary.transfer(amountRaised)) {
-                emit FundTransfer(beneficiary, amountRaised, false);
-            } else {
-                //If we fail to send the funds to beneficiary, unlock funders balance
-                fundingGoalReached = false;
-            }
+            beneficiary.transfer(amountRaised);
+            emit FundTransfer(beneficiary, amountRaised, false);
         }
     }
 }
